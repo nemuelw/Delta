@@ -1,3 +1,5 @@
+github.com/MarinX/keylogger v0.0.0-20210528193429-a54d7834cc1a h1:ItKXWegGGThcahUf+ylKFa5pwqkRJofaOyeGdzwO2mM=
+github.com/MarinX/keylogger v0.0.0-20210528193429-a54d7834cc1a/go.mod h1:aKzZ7D15UvH5LboXkeLmcNi+s/f805vUfB+BfW1fqd4=
 github.com/gen2brain/shm v0.0.0-20200228170931-49f9650110c5 h1:Y5Q2mEwfzjMt5+3u70Gtw93ZOu2UuPeeeTBDntF7FoY=
 github.com/gen2brain/shm v0.0.0-20200228170931-49f9650110c5/go.mod h1:uF6rMu/1nvu+5DpiRLwusA6xB8zlkNoGzKn8lmYONUo=
 github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 h1:dy+DS31tGEGCsZzB45HmJJNHjur8GDgtRNX9U7HnSX4=
