@@ -1,4 +1,7 @@
 // Author : Nemuel Wainaina
+/*
+	FUD Linux Remote Access Trojan
+*/
 
 package main
 
