@@ -11,7 +11,7 @@ FUD Linux Remote Access Trojan
 1. Clone this repository
 2. Navigate to the project directory
 3. Feel free to modify C2 Address in the delta.go file to point to your C2
-4. Run the command ``go build delta.go`` to create the executable(ELF) file
+4. Run the command ```go build delta.go``` to create the executable(ELF) file
 
 ## Usage :
 ### NOTE : 
