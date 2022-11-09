@@ -104,21 +104,25 @@ func main() {
 													tmp := ""
 													switch key := e.KeyString(); key {
 													case "ENTER":
-														tmp = "[ENTER]"
+														tmp = "[enter]"
 													case "R-SHIFT":
-														tmp = "[R-SHIFT]"
+														tmp = "[r-shift]"
 													case "L-SHIFT":
-														tmp = "[L-SHIFT]"
+														tmp = "[l-shift]"
 													case "Right":
-														tmp = "[R-ARROW]"
+														tmp = "[r-arrow]"
 													case "Left":
-														tmp = "[L-ARROW]"
+														tmp = "[l-arrow]"
 													case "Up":
-														tmp = "[U-ARROW]"
+														tmp = "[u-arrow]"
 													case "Down":
-														tmp = "[D-ARROW]"
+														tmp = "[d-arrow]"
+													case "SPACE":
+														tmp = "[space]"
 													case "BS":
-														tmp = "[BACKSPACE]"
+														tmp = "[backspace]"
+													case "CAPS_LOCK":
+														tmp = "[caps-lock]"
 													default:
 														tmp = key
 													}
