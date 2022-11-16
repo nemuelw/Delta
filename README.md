@@ -1,6 +1,9 @@
 # Delta
 FUD Linux Remote Access Trojan
 
+## DISCLAIMER :
+I will not be responsible for any damage that may arise out of unethical use of this project . Have fun :)
+
 ## Capabilities : 
 - Execute shell commands
 - Capture screenshot of victim machine
