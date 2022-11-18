@@ -22,3 +22,6 @@ I will not be responsible for any damage that may arise out of unethical use of 
 A C2 Server for Delta is currently in development and will be released soon ! \
 In the meantime, you can use tools like netcat though you won't have the convenience of enjoying all the functionality present in the RAT :(
  
+## Support :
+You can send your support to my BTC Wallet \
+Address : 3JgBsrrLEoQGxGsMHKCxeVHitNv7KrHray
